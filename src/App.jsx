@@ -7,7 +7,8 @@ class App extends Component {
 
   constructor(props) {
     super(props);
-    this.state = {
+      this.createMessage = this.createMessage.bind(this);
+      this.state = {
       currentUser: {name: "Bob"},
       messages: [
         {
@@ -37,6 +38,15 @@ componentDidMount() {
   }, 3000);
 }
 
+createMessage (event) {
+  if (event.keyCode === 13) {
+    console.log(event.target.value);
+    const newMessage = {id:4 , username:this.state.currentUser.name, content:event.target.value}
+    const messages = this.state.messages.concat(newMessage)
+    this.setState({messages: messages})
+  }
+}
+
   render() {
     console.log("Rendering <App/>");
     return (
@@ -49,6 +59,7 @@ componentDidMount() {
         />
         <ChatBar
           currentUser={this.state.currentUser.name}
+          createMessage={this.createMessage}
         />
       </div>
     );
