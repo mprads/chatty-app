@@ -1,46 +1,46 @@
 import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
+const uuid = require('node-uuid');
 
 class App extends Component {
 
   constructor(props) {
     super(props);
-      this.createMessage = this.createMessage.bind(this);
-      this.state = {
-      currentUser: {name: "Bob"},
+    this.createMessage = this.createMessage.bind(this);
+    this.createUsername = this.createUsername.bind(this);
+    this.state = {
+      currentUser: {name: "anonymous"},
       messages: []
     }
   }
 
 componentDidMount() {
-  console.log("componentDidMount <App />");
-  setTimeout(() => {
-    console.log("Simulating incoming message");
-    // Add a new message to the list of messages in the data store
-    const newMessage = {id: 3, username: "Michelle", content: "Hello there!"};
-    const messages = this.state.messages.concat(newMessage)
-    // Update the state of the app component.
-    // Calling setState will trigger a call to render() in App and all child components.
-    this.setState({messages: messages})
-  }, 3000);
   this.socket = new WebSocket("ws://localhost:4000");
 
+  this.socket.onmessage = (event) => {
+    const incObj = JSON.parse(event.data);
+    const userMess = this.state.messages.concat(incObj);
+
+    this.setState({messages: userMess});
+  }
+}
+
+createUsername (event) {
+  if (event.keyCode === 13) {
+    this.setState({currentUser: {name: event.target.value}});
+  }
 }
 
 createMessage (event) {
   if (event.keyCode === 13) {
-    console.log(event.target.value);
-    const newMessage = {id: 4 , username: this.state.currentUser.name, content: event.target.value}
-    const messages = this.state.messages.concat(newMessage)
-    this.setState({messages: messages})
+    const newMessage = {id: uuid.v4(), username: this.state.currentUser.name, content: event.target.value}
     this.socket.send(JSON.stringify(newMessage));
     event.target.value = "";
   }
 }
 
   render() {
-    console.log("Rendering <App/>");
     return (
       <div>
         <nav className="navbar">
@@ -52,6 +52,7 @@ createMessage (event) {
         <ChatBar
           currentUser={this.state.currentUser.name}
           createMessage={this.createMessage}
+          createUsername={this.createUsername}
         />
       </div>
     );
