@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import ChatBar from './ChatBar.jsx';
 import MessageList from './MessageList.jsx';
-const uuid = require('node-uuid');
 
 class App extends Component {
 
@@ -9,6 +8,7 @@ class App extends Component {
     super(props);
     this.createMessage = this.createMessage.bind(this);
     this.createUsername = this.createUsername.bind(this);
+
     this.state = {
       currentUser: {name: "anonymous"},
       messages: [],
@@ -28,7 +28,7 @@ componentDidMount() {
 
 createUsername (event) {
   if (event.keyCode === 13) {
-    const newUser = {type: "postNotification", id: uuid.v4(), username: this.state.currentUser.name, currentUser: {name: event.target.value}}
+    const newUser = {type: "postNotification", username: this.state.currentUser.name, currentUser: {name: event.target.value}};
     this.setState({currentUser: {name: event.target.value}});
     this.socket.send(JSON.stringify(newUser));
   }
@@ -36,7 +36,7 @@ createUsername (event) {
 
 createMessage (event) {
   if (event.keyCode === 13) {
-    const newMessage = {type: "postMessage", id: uuid.v4(), username: this.state.currentUser.name, content: event.target.value}
+    const newMessage = {type: "postMessage", username: this.state.currentUser.name, content: event.target.value};
     this.socket.send(JSON.stringify(newMessage));
     event.target.value = "";
   }
