@@ -28,13 +28,15 @@ componentDidMount() {
 
 createUsername (event) {
   if (event.keyCode === 13) {
+    const newUser = {type: "postNotification", currentUser: {name: event.target.value}}
     this.setState({currentUser: {name: event.target.value}});
+    this.socket.send(JSON.stringify(newUser));
   }
 }
 
 createMessage (event) {
   if (event.keyCode === 13) {
-    const newMessage = {id: uuid.v4(), username: this.state.currentUser.name, content: event.target.value}
+    const newMessage = {type: "postMessage", id: uuid.v4(), username: this.state.currentUser.name, content: event.target.value}
     this.socket.send(JSON.stringify(newMessage));
     event.target.value = "";
   }
