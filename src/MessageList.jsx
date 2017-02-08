@@ -7,6 +7,7 @@ class MessageList extends Component {
       <main className="messages">
           <Message
           messages={this.props.messages}
+          userInfo={this.props.userInfo}
           />
       </main>
     );

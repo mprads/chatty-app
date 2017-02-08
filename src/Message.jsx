@@ -9,7 +9,7 @@ class Message extends Component {
               </div>
         );
       }
-     return ( <div key={message.id} className="message">
+     return ( <div style={message.colour} key={message.id} className="message">
         <span className="message-username">{message.username}</span>
         <span className="message-content">{message.content}</span>
       </div>

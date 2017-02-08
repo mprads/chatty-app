@@ -10,7 +10,7 @@ class App extends Component {
     this.createUsername = this.createUsername.bind(this);
 
     this.state = {
-      currentUser: {name: "anonymous"},
+      currentUser: {name: "anonymous", colour: {}},
       messages: [],
       users: 0
     }
@@ -25,6 +25,10 @@ componentDidMount() {
       this.setState({users: incObj.userCount});
       return;
     }
+    if (incObj.type === "userColour") {
+      this.setState({currentUser: {name: this.state.currentUser.name, colour: {color: incObj.colour}}});
+      return;
+    }
     const userMess = this.state.messages.concat(incObj);
     this.setState({messages: userMess});
   }
@@ -33,14 +37,14 @@ componentDidMount() {
 createUsername (event) {
   if (event.keyCode === 13) {
     const newUser = {type: "postNotification", username: this.state.currentUser.name, currentUser: {name: event.target.value}};
-    this.setState({currentUser: {name: event.target.value}});
+    this.setState({currentUser: {name: event.target.value, colour: this.state.currentUser.colour}});
     this.socket.send(JSON.stringify(newUser));
   }
 }
 
 createMessage (event) {
   if (event.keyCode === 13) {
-    const newMessage = {type: "postMessage", username: this.state.currentUser.name, content: event.target.value};
+    const newMessage = {type: "postMessage", username: this.state.currentUser.name, content: event.target.value, colour: this.state.currentUser.colour};
     this.socket.send(JSON.stringify(newMessage));
     event.target.value = "";
   }
@@ -55,6 +59,7 @@ createMessage (event) {
         </nav>
         <MessageList
           messages={this.state.messages}
+          userInfo={this.state.currentUser}
         />
         <ChatBar
           currentUser={this.state.currentUser.name}
