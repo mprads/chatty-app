@@ -12,7 +12,7 @@ class App extends Component {
     this.state = {
       currentUser: {name: "anonymous"},
       messages: [],
-      users:[]
+      users: 0
     }
   }
 
@@ -21,6 +21,9 @@ componentDidMount() {
 
   this.socket.onmessage = (event) => {
     const incObj = JSON.parse(event.data);
+    if (incObj.type === "userCountChange") {
+      this.setState({users: incObj.userCount});
+    }
     const userMess = this.state.messages.concat(incObj);
     this.setState({messages: userMess});
   }
@@ -47,7 +50,7 @@ createMessage (event) {
       <div>
         <nav className="navbar">
          <a href="/" className="navbar-brand">Chatty</a>
-         <span>{this.props.users.length} Users online</span>
+         <span className="users">{this.state.users} Users online</span>
         </nav>
         <MessageList
           messages={this.state.messages}
