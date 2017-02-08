@@ -23,6 +23,7 @@ componentDidMount() {
     const incObj = JSON.parse(event.data);
     if (incObj.type === "userCountChange") {
       this.setState({users: incObj.userCount});
+      return;
     }
     const userMess = this.state.messages.concat(incObj);
     this.setState({messages: userMess});
