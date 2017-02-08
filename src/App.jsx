@@ -11,7 +11,8 @@ class App extends Component {
     this.createUsername = this.createUsername.bind(this);
     this.state = {
       currentUser: {name: "anonymous"},
-      messages: []
+      messages: [],
+      users:[]
     }
   }
 
@@ -21,14 +22,13 @@ componentDidMount() {
   this.socket.onmessage = (event) => {
     const incObj = JSON.parse(event.data);
     const userMess = this.state.messages.concat(incObj);
-
     this.setState({messages: userMess});
   }
 }
 
 createUsername (event) {
   if (event.keyCode === 13) {
-    const newUser = {type: "postNotification", currentUser: {name: event.target.value}}
+    const newUser = {type: "postNotification", id: uuid.v4(), username: this.state.currentUser.name, currentUser: {name: event.target.value}}
     this.setState({currentUser: {name: event.target.value}});
     this.socket.send(JSON.stringify(newUser));
   }
@@ -47,6 +47,7 @@ createMessage (event) {
       <div>
         <nav className="navbar">
          <a href="/" className="navbar-brand">Chatty</a>
+         <span>{this.props.users.length} Users online</span>
         </nav>
         <MessageList
           messages={this.state.messages}
