@@ -16,39 +16,56 @@ class App extends Component {
     }
   }
 
-componentDidMount() {
-  this.socket = new WebSocket("ws://localhost:4000");
+  componentDidMount() {
+    this.socket = new WebSocket("ws://localhost:4000");
 
-  this.socket.onmessage = (event) => {
-    const incObj = JSON.parse(event.data);
-    if (incObj.type === "userCountChange") {
-      this.setState({users: incObj.userCount});
-      return;
+    this.socket.onmessage = (event) => {
+      console.log(event.data);
+      const incObj = JSON.parse(event.data);
+      if (incObj.type === "userCountChange") {
+        this.setState({users: incObj.userCount});
+        return;
+      }
+      if (incObj.type === "userColour") {
+        this.setState({currentUser: {
+          name: this.state.currentUser.name,
+          colour: {color: incObj.colour}}
+        });
+        return;
+      }
+      const userMess = this.state.messages.concat(incObj);
+      this.setState({messages: userMess});
     }
-    if (incObj.type === "userColour") {
-      this.setState({currentUser: {name: this.state.currentUser.name, colour: {color: incObj.colour}}});
-      return;
+  }
+
+  createUsername (event) {
+    if (event.keyCode === 13) {
+      const newUser = {
+        type: "postNotification",
+        content: this.state.currentUser.name + " changed their name to " + event.target.value,
+        username: this.state.currentUser.name,
+        currentUser: {name: event.target.value}
+      };
+      this.setState({currentUser: {
+        name: event.target.value,
+        colour: this.state.currentUser.colour}
+      });
+      this.socket.send(JSON.stringify(newUser));
     }
-    const userMess = this.state.messages.concat(incObj);
-    this.setState({messages: userMess});
   }
-}
 
-createUsername (event) {
-  if (event.keyCode === 13) {
-    const newUser = {type: "postNotification", username: this.state.currentUser.name, currentUser: {name: event.target.value}};
-    this.setState({currentUser: {name: event.target.value, colour: this.state.currentUser.colour}});
-    this.socket.send(JSON.stringify(newUser));
+  createMessage (event) {
+    if (event.keyCode === 13) {
+      const newMessage = {
+        type: "postMessage",
+        username: this.state.currentUser.name,
+        content: event.target.value,
+        colour: this.state.currentUser.colour
+      };
+      this.socket.send(JSON.stringify(newMessage));
+      event.target.value = "";
+    }
   }
-}
-
-createMessage (event) {
-  if (event.keyCode === 13) {
-    const newMessage = {type: "postMessage", username: this.state.currentUser.name, content: event.target.value, colour: this.state.currentUser.colour};
-    this.socket.send(JSON.stringify(newMessage));
-    event.target.value = "";
-  }
-}
 
   render() {
     return (
@@ -59,7 +76,6 @@ createMessage (event) {
         </nav>
         <MessageList
           messages={this.state.messages}
-          userInfo={this.state.currentUser}
         />
         <ChatBar
           currentUser={this.state.currentUser.name}
